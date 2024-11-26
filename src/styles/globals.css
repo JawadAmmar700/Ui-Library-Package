@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-sans bg-[#FFFFFF];
+}
+
+.dark body {
+  @apply bg-[#0f0f1b];
+}
+
+.hide-scroll-bar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.drop-input-scrollbar::-webkit-scrollbar {
+  width: 5px; /* Width of the scrollbar */
+  display: block;
+}
+
+.drop-input-scrollbar::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 5px; /* Rounded corners */
+}
+
+.drop-input-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovered */
+}
+
+.drop-input-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+  border-radius: 5px;
+}
