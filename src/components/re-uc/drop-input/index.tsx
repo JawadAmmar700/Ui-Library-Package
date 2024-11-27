@@ -104,7 +104,7 @@ export default function DropInput({
     (event: React.DragEvent<HTMLDivElement>, id: number, text: string) => {
       if (dropZoneRef.current) {
         draggedItemRef.current = {
-          text: filteredData[id]!,
+          text: filteredData[id],
         };
         const dragImage = document.createElement("div");
         dragImage.className = `flex-shrink-0 py-1 px-2 rounded shadow-md ${
@@ -182,7 +182,7 @@ export default function DropInput({
     id: number
   ) => {
     if (event.touches.length === 1) {
-      const touch = event.touches[0]!;
+      const touch = event.touches[0];
 
       // Create a clone of the element
       const originalElement = event.target as HTMLDivElement;
@@ -206,14 +206,14 @@ export default function DropInput({
         oldYPosition: touch.clientY,
       };
       draggedItemRef.current = {
-        text: filteredData[id]!,
+        text: filteredData[id],
       };
     }
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const touch = event.touches[0]!;
+    const touch = event.touches[0];
 
     if (touchItem.current && contanierRef.current) {
       const { element, oldXPosition, oldYPosition } = touchItem.current;
@@ -273,27 +273,6 @@ export default function DropInput({
       isItemOverDropZone.current = false;
     }
   }, [draggedItemRef.current, list, dropedItems]);
-
-  // const handleListScroll = useCallback(
-  //   (counter: number, isHolding: boolean, direction: "top" | "bottom") => {
-  //     if (listRef.current) {
-  //       const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-  //       if (direction === "top" && scrollTop > 0) {
-  //         listRef.current.scrollTo({
-  //           top: Math.max(0, scrollTop - counter),
-  //           behavior: isHolding ? "instant" : "smooth",
-  //         });
-  //       }
-  //       if (direction === "bottom" && scrollTop < scrollHeight - clientHeight) {
-  //         listRef.current.scrollTo({
-  //           top: Math.min(scrollHeight - clientHeight, scrollTop + counter),
-  //           behavior: isHolding ? "instant" : "smooth",
-  //         });
-  //       }
-  //     }
-  //   },
-  //   [listRef.current]
-  // );
 
   return (
     <div
@@ -482,7 +461,7 @@ export default function DropInput({
           <div className="flex space-x-1">
             <div
               ref={listRef}
-              className="flex flex-wrap gap-2 touch-none h-[90px] overflow-y-scroll drop-input-scrollbar"
+              className="flex flex-wrap gap-2 touch-none overflow-y-scroll drop-input-scrollbar"
             >
               {filteredData.map((item, index) => (
                 <div
@@ -507,36 +486,6 @@ export default function DropInput({
                 </div>
               ))}
             </div>
-            {/* <div className="h-[90px] flex items-end justify-center md:hidden">
-              <div>
-                <LongPressButton
-                  onPress={handleListScroll}
-                  onPressArgs={["top"]}
-                  timeOutDuration={200}
-                  disabled={!list}
-                  className={`rounded p-1 ${
-                    theme === "Dark"
-                      ? "bg-white/20 hover:bg-white/30"
-                      : "bg-black/20 hover:bg-black/30"
-                  }`}
-                >
-                  <ChevronUp size={20} className="text-white" />
-                </LongPressButton>
-                <LongPressButton
-                  onPress={handleListScroll}
-                  onPressArgs={["bottom"]}
-                  timeOutDuration={200}
-                  disabled={!list}
-                  className={`rounded p-1 ${
-                    theme === "Dark"
-                      ? "bg-white/20 hover:bg-white/30"
-                      : "bg-black/20 hover:bg-black/30"
-                  }`}
-                >
-                  <ChevronDown size={20} className="text-white" />
-                </LongPressButton>
-              </div>
-            </div> */}
           </div>
         </div>
         {/* End of Drop Items */}

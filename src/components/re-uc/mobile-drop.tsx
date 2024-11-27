@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useRef, useState } from "react";
 import useMobileDrop from "@/lib/hooks/mobile-drop";
 import { cn } from "@/utils/cn";
 
@@ -41,9 +40,9 @@ const MobileDrop = ({ list, onChange, className }: MobileDropProps) => {
       )}
     >
       <div className="container mx-auto p-4">
-        <Button onClick={toggleTheme} className="mb-4">
+        <button onClick={toggleTheme} className="mb-4">
           Toggle Theme
-        </Button>
+        </button>
         <div ref={containerRef} className="border p-4 mb-4">
           <h2 className="text-xl font-bold mb-2">Draggable Items</h2>
           <div className="flex flex-wrap gap-2">

@@ -88,11 +88,9 @@ const TypeWriter = ({
         {animatedText.split("\n").map((line, index) => (
           <React.Fragment key={index}>
             {line}
-            {/* Add a <br /> after each line except the last */}
             {index < animatedText.split("\n").length - 1 && <br />}
           </React.Fragment>
         ))}
-        {/* Blinking cursor follows the last line */}
         {animatedText.length > 0 && (
           <span
             className={cn(

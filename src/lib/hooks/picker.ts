@@ -14,7 +14,7 @@ const useScroll = ({ velocity }: UseScrollProps) => {
     if (!wheelRef.current) return;
     const wheel = wheelRef.current;
     wheel.style.cursor = "grabbing";
-    const currentPosition = "touches" in e ? e.touches[0]!.pageY : e.pageY;
+    const currentPosition = "touches" in e ? e.touches[0].pageY : e.pageY;
     startPosition.current = currentPosition;
     scrollTop.current = wheel.scrollTop;
     isDragging.current = true;
@@ -32,7 +32,7 @@ const useScroll = ({ velocity }: UseScrollProps) => {
       if (!wheelRef.current || !isDragging.current) return;
       const wheel = wheelRef.current;
 
-      const endPosition = "touches" in e ? e.touches[0]!.pageY : e.pageY;
+      const endPosition = "touches" in e ? e.touches[0].pageY : e.pageY;
       const delta = (endPosition - startPosition.current) * velocity;
       wheel.scrollTop = scrollTop.current - delta;
     },

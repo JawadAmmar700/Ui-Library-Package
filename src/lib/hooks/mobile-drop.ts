@@ -34,7 +34,7 @@ const useMobileDrop = ({
     id: number
   ) => {
     if (event.touches.length === 1) {
-      const touch = event.touches[0]!;
+      const touch = event.touches[0];
 
       // Create a clone of the element
       const originalElement = event.target as HTMLDivElement;
@@ -57,13 +57,13 @@ const useMobileDrop = ({
         oldXPosition: touch.clientX,
         oldYPosition: touch.clientY,
       };
-      draggedItemRef.current = draggableItems[id]!;
+      draggedItemRef.current = draggableItems[id];
     }
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const touch = event.touches[0]!;
+    const touch = event.touches[0];
 
     if (touchItem.current && containerRef.current) {
       const { element, oldXPosition, oldYPosition } = touchItem.current;

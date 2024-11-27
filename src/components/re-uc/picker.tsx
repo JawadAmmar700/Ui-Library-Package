@@ -1,5 +1,4 @@
-import { memo, useCallback } from "react";
-import { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { useScroll } from "@/lib/hooks/picker";
 import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
