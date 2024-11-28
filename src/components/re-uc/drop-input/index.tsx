@@ -21,7 +21,8 @@ interface DropInputProps {
   inputLabel: string;
   dataLabel: string;
   data: string[];
-  onChange: (value: DropItemType[]) => void;
+  defaultValues?: string[];
+  onChange: (value: string[]) => void;
 }
 
 type DropItemType = {
@@ -41,19 +42,20 @@ export default function DropInput({
   dataLabel,
   inputLabel,
   onChange,
+  defaultValues = [],
 }: DropInputProps) {
   const [inputOrDropZone, setInputOrDropZone] = useState<"Input" | "DropZone">(
     "DropZone"
   );
   const [list, setList] = useState<string[]>(data);
   const [inputValue, setInputValue] = useState<string>("");
-  const [dropedItems, setDropedItems] = useState<DropItemType[]>([]);
-  const [deletedItem, setDeletedItem] = useState<DropItemType | null>(null);
+  const [dropedItems, setDropedItems] = useState<string[]>(defaultValues);
+  const [deletedItem, setDeletedItem] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const draggedItemRef = useRef<DropItemType | null>(null);
+  const draggedItemRef = useRef<string | null>(null);
   const timeOutRef = useRef<NodeJS.Timeout | null>(null);
   const touchItem = useRef<TouchItem | null>(null);
   const contanierRef = useRef<HTMLDivElement | null>(null);
@@ -63,10 +65,21 @@ export default function DropInput({
   const dropZoneWidth = inputOrDropZone === "DropZone" ? "85%" : "15%";
 
   const filteredData = useMemo(() => {
-    return list.filter((item) =>
-      item.toLowerCase().includes(inputValue.toLowerCase())
-    );
-  }, [inputValue, list]);
+    return list
+      .filter((item) => item.toLowerCase().includes(inputValue.toLowerCase()))
+      .filter(
+        (item) =>
+          !dropedItems.some(
+            (dropped) => dropped.toLowerCase() === item.toLowerCase()
+          )
+      );
+  }, [inputValue, list, dropedItems]);
+
+  // const filteredData = useMemo(() => {
+  //   return list.filter((item) =>
+  //     item.toLowerCase().includes(inputValue.toLowerCase())
+  //   );
+  // }, [inputValue, list]).filter((item) => !dropedItems.includes(item));
 
   const handleScroll = useCallback(
     (counter: number, isHolding: boolean, direction: "left" | "right") => {
@@ -103,9 +116,8 @@ export default function DropInput({
   const handleDragStart = useCallback(
     (event: React.DragEvent<HTMLDivElement>, id: number, text: string) => {
       if (dropZoneRef.current) {
-        draggedItemRef.current = {
-          text: filteredData[id],
-        };
+        draggedItemRef.current = filteredData[id];
+
         const dragImage = document.createElement("div");
         dragImage.className = `flex-shrink-0 py-1 px-2 rounded shadow-md ${
           theme === "Dark"
@@ -152,7 +164,7 @@ export default function DropInput({
         const newDropedItems = [...dropedItems, draggedItemRef.current];
         setDropedItems(newDropedItems);
         setList((prevData) =>
-          prevData.filter((item) => item !== draggedItemRef.current?.text)
+          prevData.filter((item) => item !== draggedItemRef.current)
         );
         onChange(newDropedItems);
       }
@@ -161,17 +173,23 @@ export default function DropInput({
     [dropedItems, list, draggedItemRef.current]
   );
 
-  const handleItemDelete = (item: DropItemType) => {
+  const handleItemDelete = (item: string) => {
     if (timeOutRef.current) {
       clearTimeout(timeOutRef.current);
     }
     const clonedItems = [...dropedItems];
     const filteredItems = clonedItems.filter((i) => i !== item);
     setDropedItems(filteredItems);
-    const newData = [...list, item.text];
-    setDeletedItem(item);
-    setList(newData.sort((a, b) => data.indexOf(a) - data.indexOf(b)));
     onChange(filteredItems);
+    setDeletedItem(item);
+    const isAlreadyListed = list.some(
+      (i) => i.toLowerCase() === item.toLowerCase()
+    );
+
+    if (!isAlreadyListed) {
+      const newData = [...list, item];
+      setList(newData.sort((a, b) => data.indexOf(a) - data.indexOf(b)));
+    }
     timeOutRef.current = setTimeout(() => {
       setDeletedItem(null);
     }, 200);
@@ -205,14 +223,11 @@ export default function DropInput({
         oldXPosition: touch.clientX,
         oldYPosition: touch.clientY,
       };
-      draggedItemRef.current = {
-        text: filteredData[id],
-      };
+      draggedItemRef.current = filteredData[id];
     }
   };
 
   const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    event.preventDefault();
     const touch = event.touches[0];
 
     if (touchItem.current && contanierRef.current) {
@@ -336,7 +351,7 @@ export default function DropInput({
               width: dropZoneWidth,
               transition: "width 0.3s cubic-bezier(0.895, 0.030, 0.685, 0.220)",
             }}
-            className={`relative overflow-hidden  rounded bg-custom-gradient bg-large animate-backgroundMove flex h-full items-center `}
+            className={`relative overflow-hidden rounded bg-drop-input-gradient bg-large animate-backgroundMove flex h-full items-center `}
           >
             {inputOrDropZone === "Input" ? (
               <button
@@ -461,21 +476,21 @@ export default function DropInput({
           <div className="flex space-x-1">
             <div
               ref={listRef}
-              className="flex flex-wrap gap-2 touch-none overflow-y-scroll drop-input-scrollbar"
+              className="flex flex-wrap gap-2 max-h-[90px]  touch-none  overflow-y-scroll drop-input-scrollbar"
             >
               {filteredData.map((item, index) => (
                 <div
                   key={index}
                   draggable={true}
                   className={` ${
-                    deletedItem?.text === item
+                    deletedItem?.toLowerCase() === item.toLowerCase()
                       ? "animate-scale"
                       : "animate-none"
                   }  flex-shrink-0 py-1 px-2 rounded shadow-md ${
                     theme === "Dark"
                       ? "bg-white/20 hover:bg-white/30"
                       : "bg-white/20 hover:bg-black/10"
-                  } select-none   flex items-center justify-center text-xs font-semibold whitespace-nowrap`}
+                  } select-none  flex items-center justify-center text-xs font-semibold whitespace-nowrap`}
                   onDragEnd={handleDragEnd}
                   onDragStart={(e) => handleDragStart(e, index, item)}
                   onTouchStart={(e) => handleTouchStart(e, index)}

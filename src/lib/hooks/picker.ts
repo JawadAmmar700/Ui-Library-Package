@@ -27,7 +27,7 @@ const useScroll = ({ velocity }: UseScrollProps) => {
 
   const handleMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
-      e.preventDefault();
+      e.type != "touchmove" && e.preventDefault();
 
       if (!wheelRef.current || !isDragging.current) return;
       const wheel = wheelRef.current;
