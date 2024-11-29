@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 
 interface LongPressButtonProps<TArgs extends (string | number | boolean)[]> {
   onPress: (counter: number, isHolding: boolean, ...args: TArgs) => void;
-  className: string;
+  className?: string;
   children: React.ReactNode;
   timeOutDuration: number;
   onPressArgs: TArgs;

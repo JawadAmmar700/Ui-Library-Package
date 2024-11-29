@@ -1,7 +1,9 @@
 import {
   BadgePlus,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   List,
   Search,
 } from "lucide-react";
@@ -59,7 +61,6 @@ export default function DropInput({
   const timeOutRef = useRef<NodeJS.Timeout | null>(null);
   const touchItem = useRef<TouchItem | null>(null);
   const contanierRef = useRef<HTMLDivElement | null>(null);
-  const isItemOverDropZone = useRef<boolean | null>(null);
 
   const inputWidth = inputOrDropZone === "Input" ? "85%" : "15%";
   const dropZoneWidth = inputOrDropZone === "DropZone" ? "85%" : "15%";
@@ -74,12 +75,6 @@ export default function DropInput({
           )
       );
   }, [inputValue, list, dropedItems]);
-
-  // const filteredData = useMemo(() => {
-  //   return list.filter((item) =>
-  //     item.toLowerCase().includes(inputValue.toLowerCase())
-  //   );
-  // }, [inputValue, list]).filter((item) => !dropedItems.includes(item));
 
   const handleScroll = useCallback(
     (counter: number, isHolding: boolean, direction: "left" | "right") => {
@@ -263,10 +258,10 @@ export default function DropInput({
             dropY >= -elementRec.height / 2 &&
             dropY <= dropRect.height - elementRec.height / 2
           ) {
-            isItemOverDropZone.current = true;
+            setIsDraggingOver(true);
             element.style.border = "2px dotted green";
           } else {
-            isItemOverDropZone.current = false;
+            setIsDraggingOver(false);
             element.style.border = "none";
           }
         }
@@ -278,16 +273,38 @@ export default function DropInput({
     if (touchItem.current) {
       const { element, originalElement } = touchItem.current;
       originalElement.style.opacity = "1";
-      if (isItemOverDropZone.current) {
+
+      if (isDraggingOver) {
         handleDrop("Touch");
       }
 
       // Reset state
       element.remove();
       touchItem.current = null;
-      isItemOverDropZone.current = false;
+      setIsDraggingOver(false);
     }
   }, [draggedItemRef.current, list, dropedItems]);
+
+  const handleListScroll = useCallback(
+    (counter: number, isHolding: boolean, direction: "top" | "bottom") => {
+      if (listRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        if (direction === "top" && scrollTop > 0) {
+          listRef.current.scrollTo({
+            top: Math.max(0, scrollTop - counter),
+            behavior: isHolding ? "instant" : "smooth",
+          });
+        }
+        if (direction === "bottom" && scrollTop < scrollHeight - clientHeight) {
+          listRef.current.scrollTo({
+            top: Math.min(scrollHeight - clientHeight, scrollTop + counter),
+            behavior: isHolding ? "instant" : "smooth",
+          });
+        }
+      }
+    },
+    [listRef.current]
+  );
 
   return (
     <div
@@ -300,7 +317,7 @@ export default function DropInput({
       <div className="flex flex-col items-start space-y-1">
         <div className="flex items-center justify-between w-full">
           <h1
-            className={`text-md font-bold ${
+            className={`text-md font-bold select-none ${
               theme === "Dark" ? "text-slate-100" : "text-black"
             } `}
           >
@@ -384,7 +401,7 @@ export default function DropInput({
                         text="Drag and drop items here"
                         loop={false}
                         animationDuration={50}
-                        TextStyle="text-sm font-bold text-white/50"
+                        TextStyle="text-xs md:text-sm font-bold text-white/50"
                         cursorStyle="hidden"
                       />
                     )}
@@ -466,17 +483,54 @@ export default function DropInput({
             theme === "Dark" ? "text-white" : "text-black"
           } ${inputOrDropZone === "Input" && "relative top-2"} `}
         >
-          <h1
-            className={`text-md font-bold ${
-              theme === "Dark" ? "text-slate-100" : "text-black"
-            } `}
-          >
-            {dataLabel}
-          </h1>
+          <div className="flex items-center space-x-2 p-1">
+            <h1
+              className={`text-md font-bold select-none ${
+                theme === "Dark" ? "text-slate-100" : "text-black"
+              } `}
+            >
+              {dataLabel}
+            </h1>
+
+            <div className="flex items-center space-x-1 ">
+              <LongPressButton
+                onPress={handleListScroll}
+                onPressArgs={["top"]}
+                timeOutDuration={200}
+                disabled={!list}
+                delay={50}
+              >
+                <ChevronUp
+                  size={16}
+                  className={`rounded  ${
+                    theme === "Dark"
+                      ? "text-white group-hover:text-white/80"
+                      : "text-black group-hover:text-black/80"
+                  }`}
+                />
+              </LongPressButton>
+              <LongPressButton
+                onPress={handleListScroll}
+                onPressArgs={["bottom"]}
+                timeOutDuration={200}
+                disabled={!list}
+                delay={50}
+              >
+                <ChevronDown
+                  size={16}
+                  className={`rounded  ${
+                    theme === "Dark"
+                      ? "text-white group-hover:text-white/80"
+                      : "text-black group-hover:text-black/80"
+                  }`}
+                />
+              </LongPressButton>
+            </div>
+          </div>
           <div className="flex space-x-1">
             <div
               ref={listRef}
-              className="flex flex-wrap gap-2 max-h-[90px]  touch-none  overflow-y-scroll drop-input-scrollbar"
+              className="flex flex-wrap gap-2 max-h-[90px] touch-none overflow-y-scroll drop-input-scrollbar"
             >
               {filteredData.map((item, index) => (
                 <div

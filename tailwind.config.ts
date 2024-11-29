@@ -9,17 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      cursor: {
-        fancy: "url('/cursors/arrowhead-rounded-outline.png'),default",
-        fancyPointer: "url('/cursors/hand-pointer.png'),pointer",
-      },
-
       backgroundImage: {
-        batthern:
-          'url("https://www.transparenttextures.com/patterns/batthern.png")',
-        "custom-gradient": "linear-gradient(90deg, silver, gray, silver, gray)",
-        "delete-item-gradient":
-          "linear-gradient(90deg, silver, rgb(255 255 255 / 0.2), silver, rgb(255 255 255 / 0.2))",
+        "drop-input-gradient":
+          "linear-gradient(90deg, silver, gray, silver, gray)",
       },
       backgroundSize: {
         large: "400% 100%",

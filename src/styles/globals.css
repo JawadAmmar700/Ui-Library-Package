@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply font-sans bg-[#FFFFFF];
-}
-
-.dark body {
-  @apply bg-[#0f0f1b];
-}
-
 .hide-scroll-bar {
   -ms-overflow-style: none;
   scrollbar-width: none;
