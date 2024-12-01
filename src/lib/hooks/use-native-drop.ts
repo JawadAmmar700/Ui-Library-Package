@@ -7,15 +7,26 @@ type TouchItem = {
   oldYPosition: number;
 };
 
-type useMobileDropProps = {
+type useNativeDropProps = {
   draggableItems: string[];
+  defaultSelected?: string[];
 };
 
-const useMobileDrop = ({ draggableItems: list }: useMobileDropProps) => {
+const useNativeDrop = ({
+  draggableItems: list,
+  defaultSelected = [],
+}: useNativeDropProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const dropZoneRef = useRef<HTMLDivElement | null>(null);
-  const [draggableItems, setDraggableItems] = useState<string[]>(list);
-  const [droppedItems, setDroppedItems] = useState<string[]>([]);
+  const [droppedItems, setDroppedItems] = useState<string[]>(defaultSelected);
+  const [draggableItems, setDraggableItems] = useState<string[]>(
+    list.filter(
+      (item) =>
+        !droppedItems.some(
+          (dropped) => dropped.toLowerCase() === item.toLowerCase()
+        )
+    )
+  );
 
   const touchItem = useRef<TouchItem | null>(null);
 
@@ -147,4 +158,4 @@ const useMobileDrop = ({ draggableItems: list }: useMobileDropProps) => {
   };
 };
 
-export default useMobileDrop;
+export default useNativeDrop;

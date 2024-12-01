@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import Picker from "@/components/re-uc/picker";
+import Picker from "@/components/picker";
 import { hours, minutes } from "@/lib/constants";
 import { getSunSetAndSunRise } from "@/server/actions";
 import { Moon, Sun } from "lucide-react";

@@ -17,19 +17,18 @@ import React, {
 import { AnimatedButtonComponent } from "./animated-button";
 import TypeWriter from "../type-writer";
 import LongPressButton from "../long-press-button";
+import { cn } from "@/utils/cn";
 
 interface DropInputProps {
   theme: "Dark" | "Light";
-  inputLabel: string;
-  dataLabel: string;
-  data: string[];
-  defaultValues?: string[];
+  optionsLabel: string;
+  label: string;
+  className?: string;
+  optionsClassName?: string;
+  options: string[];
+  defaultSelected?: string[];
   onChange: (value: string[]) => void;
 }
-
-type DropItemType = {
-  text: string;
-};
 
 type TouchItem = {
   element: HTMLElement;
@@ -40,18 +39,20 @@ type TouchItem = {
 
 export default function DropInput({
   theme = "Dark",
-  data,
-  dataLabel,
-  inputLabel,
+  label,
+  optionsLabel,
+  options,
+  defaultSelected = [],
   onChange,
-  defaultValues = [],
+  className,
+  optionsClassName,
 }: DropInputProps) {
   const [inputOrDropZone, setInputOrDropZone] = useState<"Input" | "DropZone">(
     "DropZone"
   );
-  const [list, setList] = useState<string[]>(data);
+  const [list, setList] = useState<string[]>(options);
   const [inputValue, setInputValue] = useState<string>("");
-  const [dropedItems, setDropedItems] = useState<string[]>(defaultValues);
+  const [dropedItems, setDropedItems] = useState<string[]>(defaultSelected);
   const [deletedItem, setDeletedItem] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -183,7 +184,7 @@ export default function DropInput({
 
     if (!isAlreadyListed) {
       const newData = [...list, item];
-      setList(newData.sort((a, b) => data.indexOf(a) - data.indexOf(b)));
+      setList(newData.sort((a, b) => options.indexOf(a) - options.indexOf(b)));
     }
     timeOutRef.current = setTimeout(() => {
       setDeletedItem(null);
@@ -202,11 +203,12 @@ export default function DropInput({
       const clonedElement = originalElement.cloneNode(true) as HTMLDivElement;
       originalElement.style.opacity = "0.5";
 
-      clonedElement.className = `absolute left-[${touch.clientX}px]  top-[${
-        touch.clientY
-      }px] flex-shrink-0 py-1 px-2 rounded shadow-md ${
-        theme === "Dark" ? "bg-white/20 text-white " : "bg-white/20 text-black "
+      clonedElement.className = `flex-shrink-0 py-1 px-2 bg-white/20 rounded shadow-md ${
+        theme === "Dark" ? "text-white" : "text-black"
       } select-none flex items-center justify-center text-xs font-semibold whitespace-nowrap`;
+      clonedElement.style.position = "absolute";
+      clonedElement.style.left = `${touch.clientX}px`;
+      clonedElement.style.top = `${touch.clientY}px`;
       clonedElement.style.pointerEvents = "none";
 
       document.body.appendChild(clonedElement);
@@ -309,10 +311,12 @@ export default function DropInput({
   return (
     <div
       ref={contanierRef}
-      style={{
-        backgroundColor: theme === "Dark" ? "#0f172a" : "#e2e8f0",
-      }}
-      className="p-5 w-4/5 md:w-3/5 lg:w-2/5 rounded-lg"
+      className={cn(
+        `p-5 rounded-lg drop-input-user-select ${
+          theme === "Dark" ? "bg-[#0f172a]" : "bg-[#e2e8f0]"
+        }`,
+        className
+      )}
     >
       <div className="flex flex-col items-start space-y-1">
         <div className="flex items-center justify-between w-full">
@@ -321,7 +325,7 @@ export default function DropInput({
               theme === "Dark" ? "text-slate-100" : "text-black"
             } `}
           >
-            {inputLabel}
+            {label}
           </h1>
         </div>
         <div className="w-full flex rounded h-[40px] space-x-2">
@@ -353,7 +357,7 @@ export default function DropInput({
                     ? "text-slate-400 "
                     : "text-slate-200 placeholder:text-slate-200"
                 }  h-full border-none focus:outline-none bg-transparent`}
-                placeholder={`Filter ${dataLabel}...`}
+                placeholder={`Filter ${optionsLabel}...`}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
               />
@@ -489,7 +493,7 @@ export default function DropInput({
                 theme === "Dark" ? "text-slate-100" : "text-black"
               } `}
             >
-              {dataLabel}
+              {optionsLabel}
             </h1>
 
             <div className="flex items-center space-x-1 ">
@@ -530,7 +534,10 @@ export default function DropInput({
           <div className="flex space-x-1">
             <div
               ref={listRef}
-              className="flex flex-wrap gap-2 max-h-[90px] touch-none overflow-y-scroll drop-input-scrollbar"
+              className={cn(
+                "flex flex-wrap gap-2 touch-none overflow-y-scroll drop-input-scrollbar",
+                optionsClassName
+              )}
             >
               {filteredData.map((item, index) => (
                 <div
@@ -544,7 +551,7 @@ export default function DropInput({
                     theme === "Dark"
                       ? "bg-white/20 hover:bg-white/30"
                       : "bg-white/20 hover:bg-black/10"
-                  } select-none  flex items-center justify-center text-xs font-semibold whitespace-nowrap`}
+                  } select-none flex items-center justify-center text-xs font-semibold whitespace-nowrap`}
                   onDragEnd={handleDragEnd}
                   onDragStart={(e) => handleDragStart(e, index, item)}
                   onTouchStart={(e) => handleTouchStart(e, index)}

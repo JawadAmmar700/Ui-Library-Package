@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Picker from "@/components/re-uc/picker";
+import Picker from "@/components/picker";
 import { MONTHS, years } from "@/lib/constants";
 
 export default function Component() {

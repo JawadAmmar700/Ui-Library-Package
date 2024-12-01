@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.drop-input-user-select {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE/Edge */
+  user-select: none; /* Standard */
+}
+
 .hide-scroll-bar {
   -ms-overflow-style: none;
   scrollbar-width: none;
