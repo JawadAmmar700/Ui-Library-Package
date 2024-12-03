@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 
 type UseScrollProps = {
-  velocity: number;
+  velocity: 0.5 | 1 | 1.5 | 2 | 2.5 | 3;
 };
 
 const useScroll = ({ velocity }: UseScrollProps) => {

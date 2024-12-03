@@ -2,8 +2,13 @@ import React, { useState, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Picker from "@/components/picker";
 import { MONTHS, years } from "@/lib/constants";
+import { cn } from "@/utils/cn";
 
-export default function Component() {
+interface DatePickerProps {
+  theme: "light" | "dark";
+}
+
+const DatePicker = ({ theme }: DatePickerProps) => {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -78,71 +83,117 @@ export default function Component() {
   }, [selectedYear, selectedMonth, selectedDay]);
 
   return (
-    <div className="max-w-md pt-5 dark:bg-black bg-slate-50 shadow-lg">
+    <div
+      className={cn(
+        `transition-all duration-300 max-w-md p-5 pt-5 ${
+          theme === "dark" ? "bg-black" : "bg-slate-50"
+        } shadow-lg rounded-lg`,
+        ""
+      )}
+    >
       <div>
-        <div className="flex mt-[50px] space-x-1 dark:space-x-0">
+        <div
+          className={`flex mt-[50px] ${
+            theme === "dark" ? "space-x-0" : "space-x-1"
+          }`}
+        >
           <Picker
-            width={150}
-            inView={3}
-            sound="click"
-            data={MONTHS}
-            onChange={handleMonthChange}
-            velocity={2}
-            labelClassName="rounded-none dark:bg-transparent border-t-2 border-b-2 border-r-0 border-l-0 border-white"
-            label="Month"
-            defaultValue={selectedMonth + 1}
+            componentWidth={150}
+            visibleItems={3}
+            soundEffect="click"
+            options={MONTHS}
+            onValueChange={handleMonthChange}
+            scrollVelocity={2}
+            labelClassName={`${
+              theme === "dark"
+                ? "text-white border-white bg-transparent rounded-none"
+                : "text-black border-none bg-white rounded"
+            }   border-t-2 border-b-2 border-r-0 border-l-0 `}
+            labelText="Month"
+            initialValue={selectedMonth + 1}
+            itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
           />
 
           <Picker
-            width={100}
-            inView={3}
-            sound="click"
-            onChange={handleYearChange}
-            velocity={2}
-            data={years}
-            labelClassName="rounded-none dark:bg-transparent border-t-2 border-b-2 border-r-0 border-l-0 border-white"
-            label="Year"
-            defaultValue={years.indexOf((selectedYear + 1).toString())}
+            componentWidth={100}
+            visibleItems={3}
+            soundEffect="click"
+            onValueChange={handleYearChange}
+            scrollVelocity={2}
+            options={years}
+            labelText="Year"
+            initialValue={years.indexOf((selectedYear + 1).toString())}
+            labelClassName={`${
+              theme === "dark"
+                ? "text-white border-white bg-transparent rounded-none "
+                : "text-black border-none bg-white rounded"
+            }  border-t-2 border-b-2 border-r-0 border-l-0 `}
+            itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
           />
 
           <Picker
-            width={80}
-            inView={3}
-            sound="click"
-            onChange={handleDayChange}
-            velocity={2}
-            data={days}
-            labelClassName="rounded-none dark:bg-transparent border-t-2 border-b-2 border-r-0 border-l-0 border-white"
-            label="Day"
-            defaultValue={selectedDay}
+            componentWidth={80}
+            visibleItems={3}
+            soundEffect="click"
+            onValueChange={handleDayChange}
+            scrollVelocity={2}
+            options={days}
+            labelText="Day"
+            labelClassName={`${
+              theme === "dark"
+                ? "text-white border-white bg-transparent rounded-none "
+                : "text-black border-none bg-white rounded"
+            }   border-t-2 border-b-2 border-r-0 border-l-0 `}
+            initialValue={selectedDay}
+            itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
           />
         </div>
 
         <div className="flex items-center justify-between mt-4">
           <div
-            className="text-lg font-semibold dark:text-white text-black"
+            className={`text-lg font-semibold ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
             aria-live="polite"
           >
             {formattedDate}
           </div>
           <div className="flex space-x-2">
             <button
-              className="dark:bg-white/10 bg-white shadow-lg  hover:dark:bg-white/15 hover:bg-black/10"
+              className={`${
+                theme === "dark"
+                  ? "bg-white/10 hover:bg-white/15"
+                  : "bg-white hover:bg-black/10"
+              } shadow-lg p-2 rounded`}
               onClick={decrementMonth}
               aria-label="Previous month"
             >
-              <ChevronLeft className="h-4 w-4 dark:text-white text-black " />
+              <ChevronLeft
+                className={`h-4 w-4 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             </button>
             <button
-              className="dark:bg-white/10 bg-white shadow-lg  hover:dark:bg-white/15 hover:bg-black/10"
+              className={`${
+                theme === "dark"
+                  ? "bg-white/10 hover:bg-white/15"
+                  : "bg-white hover:bg-black/10"
+              } shadow-lg p-2 rounded`}
               onClick={incrementMonth}
               aria-label="Next month"
             >
-              <ChevronRight className="h-4 w-4 dark:text-white text-black " />
+              <ChevronRight
+                className={`h-4 w-4 ${
+                  theme === "dark" ? "text-white" : "text-black"
+                }`}
+              />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DatePicker;

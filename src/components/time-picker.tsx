@@ -1,43 +1,84 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useCallback, useMemo, useEffect, useReducer } from "react";
 import Picker from "@/components/picker";
 import { hours, minutes } from "@/lib/constants";
 import { getSunSetAndSunRise } from "@/server/actions";
 import { Moon, Sun } from "lucide-react";
+import { cn } from "@/utils/cn";
+import Cookies from "js-cookie";
 
 interface Position {
   sunset: string;
   sunrise: string;
 }
 
+interface TimePickerProps {
+  theme: "light" | "dark";
+  className?: string;
+}
+
 const periods = ["AM", "PM"];
 
-export default function TimePicker() {
-  const [selectedHour, setSelectedHour] = useState<number | null>(null);
-  const [selectedMinute, setSelectedMinute] = useState<number | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM" | null>(
-    null
-  );
-  const [sunsetSunrise, setSunsetSunrise] = useState<Position | null>(null);
+type InitialStateType = {
+  selectedHour: number | null;
+  selectedMinute: number | null;
+  selectedPeriod: "AM" | "PM" | null;
+};
+type ActionType =
+  | { type: "SET_HOUR"; payload: number | null }
+  | { type: "SET_MINUTE"; payload: number | null }
+  | { type: "SET_PERIOD"; payload: "AM" | "PM" | null };
+
+const initialState: InitialStateType = {
+  selectedHour: null,
+  selectedMinute: null,
+  selectedPeriod: null,
+};
+
+const reducer = (state: InitialStateType, action: ActionType) => {
+  switch (action.type) {
+    case "SET_HOUR":
+      return { ...state, selectedHour: action.payload };
+    case "SET_MINUTE":
+      return { ...state, selectedMinute: action.payload };
+    case "SET_PERIOD":
+      return { ...state, selectedPeriod: action.payload };
+    default:
+      return state;
+  }
+};
+
+export default function TimePicker({ theme, className }: TimePickerProps) {
+  const sunsetSunrise = React.useRef<Position | null>(null);
+  const [{ selectedHour, selectedMinute, selectedPeriod }, dispatch] =
+    useReducer(reducer, initialState);
 
   useEffect(() => {
+    const storedData = Cookies.get("TimePicker_Coordinates");
+    if (storedData) {
+      sunsetSunrise.current = JSON.parse(storedData);
+      return;
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const latitude = position.coords.latitude.toString();
           const longitude = position.coords.longitude.toString();
           const result = await getSunSetAndSunRise(latitude, longitude);
-          setSunsetSunrise(result);
+          sunsetSunrise.current = result;
+          Cookies.set("TimePicker_Coordinates", JSON.stringify(result), {
+            expires: 1,
+          });
         },
         (error) => {
-          console.log("Error getting location: " + error.message);
+          throw new Error(error.message);
         }
       );
     } else {
-      console.log("Geolocation is not supported by this browser.");
+      throw new Error("Geolocation is not supported by this browser.");
     }
   }, []);
 
-  const timeToMinutes = (time: string) => {
+  const timeToMinutes = useCallback((time: string) => {
     const [hour, minuteWithPeriod] = time.split(":");
     const [minute, period] = minuteWithPeriod.split(" ");
     let hourIn24 = parseInt(hour);
@@ -49,44 +90,19 @@ export default function TimePicker() {
     }
 
     return hourIn24 * 60 + parseInt(minute);
-  };
-
-  const handleHourChange = useCallback(
-    (value: string | number | boolean | null) => {
-      setSelectedHour(value !== null ? parseInt(value.toString(), 10) : null);
-    },
-    []
-  );
-
-  const handleMinuteChange = useCallback(
-    (value: string | number | boolean | null) => {
-      setSelectedMinute(value !== null ? parseInt(value.toString(), 10) : null);
-    },
-    []
-  );
-
-  const handlePeriodChange = useCallback(
-    (value: string | number | boolean | null) => {
-      setSelectedPeriod(value as "AM" | "PM" | null);
-    },
-    []
-  );
+  }, []);
 
   const formattedTime = useMemo(() => {
     if (
-      selectedHour === null &&
-      selectedMinute === null &&
+      selectedHour === null ||
+      selectedMinute === null ||
       selectedPeriod === null
     )
-      return "-- : -- --";
+      return "";
 
-    const hour =
-      selectedHour !== null ? selectedHour.toString().padStart(2, "0") : "--";
-    const minute =
-      selectedMinute !== null
-        ? selectedMinute.toString().padStart(2, "0")
-        : "--";
-    const period = selectedPeriod || "--";
+    const hour = selectedHour.toString().padStart(2, "0");
+    const minute = selectedMinute.toString().padStart(2, "0");
+    const period = selectedPeriod;
 
     if (
       selectedHour !== null &&
@@ -101,9 +117,9 @@ export default function TimePicker() {
   }, [selectedHour, selectedMinute, selectedPeriod]);
 
   const checkDayOrNight = useMemo(() => {
-    if (!sunsetSunrise) return;
-    const sunriseTime = timeToMinutes(sunsetSunrise.sunrise);
-    const sunsetTime = timeToMinutes(sunsetSunrise.sunset);
+    if (!sunsetSunrise.current) return;
+    const sunriseTime = timeToMinutes(sunsetSunrise.current.sunrise!);
+    const sunsetTime = timeToMinutes(sunsetSunrise.current.sunset!);
     const selectedTime = timeToMinutes(formattedTime);
 
     if (selectedTime >= sunriseTime && selectedTime <= sunsetTime) {
@@ -115,60 +131,90 @@ export default function TimePicker() {
 
   return (
     <div
-      className={`flex bg-slate-50 dark:bg-transparent shadow-lg space-x-2 relative transition-all duration-300 md:mt-0 rounded-lg pt-[70px] px-5 py-5`}
+      className={cn(
+        `${
+          theme === "dark" ? "bg-black" : "bg-slate-50"
+        } flex shadow-lg space-x-2 relative transition-all duration-300 md:mt-0 rounded-lg px-5 py-5`,
+        className
+      )}
     >
-      <Picker
-        width={75}
-        inView={3}
-        sound="click"
-        onChange={handleHourChange}
-        velocity={2}
-        data={hours}
-        label="Hour"
-        labelClassName="text-gray-700 dark:text-slate-200"
-        defaultValue={new Date().getHours() % 12}
-      />
+      <div className="flex mt-[50px] space-x-1">
+        <Picker
+          componentWidth={75}
+          visibleItems={3}
+          soundEffect="click"
+          onValueChange={(value) =>
+            dispatch({
+              type: "SET_HOUR",
+              payload: value !== null ? parseInt(value.toString(), 10) : null,
+            })
+          }
+          scrollVelocity={2}
+          options={hours}
+          labelText="Hour"
+          labelClassName={`  ${
+            theme === "dark"
+              ? "text-slate-200 border-white bg-white/10"
+              : "text-gray-700 border-none bg-white"
+          }`}
+          itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
+          initialValue={new Date().getHours() % 12}
+        />
 
-      <Picker
-        width={90}
-        inView={3}
-        sound="click"
-        data={minutes}
-        onChange={handleMinuteChange}
-        velocity={2}
-        label="Minute"
-        labelClassName="text-gray-700 dark:text-slate-200"
-        defaultValue={new Date().getMinutes() + 1}
-      />
+        <Picker
+          componentWidth={90}
+          visibleItems={3}
+          soundEffect="click"
+          options={minutes}
+          onValueChange={(value) =>
+            dispatch({
+              type: "SET_MINUTE",
+              payload: value !== null ? parseInt(value.toString(), 10) : null,
+            })
+          }
+          scrollVelocity={2}
+          labelText="Minute"
+          labelClassName={`  ${
+            theme === "dark"
+              ? "text-slate-200 border-white bg-white/10"
+              : "text-gray-700 border-none bg-white"
+          }`}
+          itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
+          initialValue={new Date().getMinutes() + 1}
+        />
 
-      <Picker
-        width={90}
-        inView={2}
-        sound="click"
-        onChange={handlePeriodChange}
-        data={periods}
-        velocity={2}
-        label="Period"
-        labelClassName="text-gray-700 dark:text-slate-200"
-        defaultValue={new Date().getHours() >= 12 ? 2 : 1}
-      />
+        <Picker
+          componentWidth={90}
+          visibleItems={2}
+          soundEffect="click"
+          onValueChange={(value) =>
+            dispatch({
+              type: "SET_PERIOD",
+              payload: value as "AM" | "PM" | null,
+            })
+          }
+          options={periods}
+          scrollVelocity={2}
+          labelText="Period"
+          labelClassName={`  ${
+            theme === "dark"
+              ? "text-slate-200 border-white bg-white/10"
+              : "text-gray-700 border-none bg-white"
+          }`}
+          itemClassName={`${theme === "dark" ? "text-white" : "text-black"}`}
+          initialValue={new Date().getHours() >= 12 ? 2 : 1}
+        />
+      </div>
 
       <div
-        className={`text-2xl font-bold absolute right-5 rounded px-2 bottom-2 flex space-x-1 items-center justify-center transition-all duration-200 ease-in transform ${
-          checkDayOrNight === "day"
-            ? "text-gray-500 dark:text-slate-100"
-            : "text-black dark:text-gray-400"
-        }`}
+        className="text-2xl font-bold absolute right-2 rounded px-2 bottom-2 flex space-x-1 items-center justify-center transition-all duration-200 ease-in transform"
         aria-live="polite"
       >
         {checkDayOrNight === "day" ? (
-          <Sun className="h-5 w-5 mt-0.5 text-yellow-400 transition-all duration-200 ease-in transform" />
+          <Sun className="h-5 w-5 mt-0.5 text-yellow-400 animate-scale" />
         ) : (
-          <Moon className="h-5 w-5 text-blue-300 mt-0.5 transition-all duration-200 ease-out transform" />
+          <Moon className="h-5 w-5 text-blue-300 mt-0.5 animate-scale" />
         )}
-        <div className="transition-all duration-200 ease-in">
-          {formattedTime}
-        </div>
       </div>
     </div>
   );

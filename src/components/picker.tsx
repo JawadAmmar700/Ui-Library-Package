@@ -1,24 +1,24 @@
 import React, { memo, useCallback } from "react";
 import { useEffect, useState } from "react";
-import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
 import useSound from "use-sound";
 import { useScroll } from "@/lib/hooks/use-scroll";
 
-interface IOSPickerProps {
-  inView: number;
-  velocity: number;
-  onChange: (value: string | number | boolean | null) => void;
-  label?: string | null;
-  width: number;
-  sound?: "pop" | "click";
-  defaultValue?: number | null;
-  className?: ClassValue;
-  labelClassName?: ClassValue;
-  data: string[] | number[];
-  firstItem?: string | number | boolean | null;
-  ItemclassName?: ClassValue;
-  mute?: boolean;
+interface PickerProps {
+  visibleItems: number;
+  scrollVelocity: 0.5 | 1 | 1.5 | 2 | 2.5 | 3;
+  onValueChange: (value: string | number | boolean | null) => void;
+  labelText?: string | null;
+  componentWidth: number;
+  soundEffect?: "pop" | "click";
+  initialValue?: number | null;
+  containerClassName?: string;
+  labelClassName?: string;
+  options: string[] | number[];
+  initialItemLabel?: string | number | boolean | null;
+  itemClassName?: string;
+  isMuted?: boolean;
+  ObserverClassName?: string;
 }
 
 interface PickerItemProps {
@@ -27,7 +27,7 @@ interface PickerItemProps {
   id?: number;
   activeIndex?: number;
   label?: string | null;
-  ItemclassName?: ClassValue;
+  itemclassName?: string;
 }
 
 const audioUrl = {
@@ -37,33 +37,34 @@ const audioUrl = {
 
 const Picker = memo(
   ({
-    inView,
-    velocity,
-    onChange,
-    label = null,
-    width,
-    sound = "pop",
-    defaultValue = null,
-    className,
+    onValueChange,
+    labelText = null,
+    componentWidth,
+    soundEffect = "pop",
+    initialValue = null,
+    containerClassName,
     labelClassName,
-    data,
-    firstItem,
-    ItemclassName,
-    mute = true,
-  }: IOSPickerProps) => {
-    const { ref } = useScroll({ velocity });
+    options,
+    initialItemLabel,
+    itemClassName,
+    isMuted = true,
+    visibleItems,
+    ObserverClassName,
+    scrollVelocity,
+  }: PickerProps) => {
+    const { ref } = useScroll({ velocity: scrollVelocity });
     const [activeIndex, setActiveIndex] = useState<number>(0);
     const itemHeight = 30;
-    const rootMargin = (inView - 1) * itemHeight;
-    const [play] = useSound(audioUrl[sound || "pop"], {
+    const rootMargin = (visibleItems - 1) * itemHeight;
+    const [play] = useSound(audioUrl[soundEffect || "pop"], {
       volume: 0.25,
     });
 
     useEffect(() => {
-      if (!mute) {
+      if (!isMuted) {
         play();
       }
-    }, [activeIndex, mute, play]);
+    }, [activeIndex, isMuted, play]);
 
     const handleIntersection = useCallback(
       (entries: IntersectionObserverEntry[]) => {
@@ -73,11 +74,11 @@ const Picker = memo(
             const value = entry.target.getAttribute("data-value")!;
 
             setActiveIndex(index);
-            onChange(value);
+            onValueChange(value);
           }
         });
       },
-      [onChange]
+      [onValueChange]
     );
 
     useEffect(() => {
@@ -102,65 +103,67 @@ const Picker = memo(
           }
         });
       };
-    }, [rootMargin, handleIntersection, ref, data]);
+    }, [rootMargin, ref, options]);
 
     useEffect(() => {
       if (!ref.current) return;
-      const scrollTop = defaultValue
-        ? (firstItem ? defaultValue + 1 : defaultValue) * itemHeight
+      const scrollTop = initialValue
+        ? (initialItemLabel ? initialValue + 1 : initialValue) * itemHeight
         : 0;
 
       ref.current.scrollTop = scrollTop;
-    }, [defaultValue, ref, data, firstItem]);
+    }, [initialValue, ref, options, initialItemLabel]);
 
     return (
       <div
         style={{
-          height: `${inView * itemHeight}px`,
-          width: `${width}px`,
+          height: `${visibleItems * itemHeight}px`,
+          width: `${componentWidth}px`,
         }}
         className={cn(
           "relative group rounded-lg transform-gpu hide-scroll-bar",
-          className
+          containerClassName
         )}
       >
         <div
           className={cn(
-            "dark:bg-white/10 shadow-lg bg-white text-sm absolute inset-0  -z-10 select-none h-[30px] w-full  font-bold  rounded-md flex items-center justify-end  dark:text-white text-black",
-            labelClassName
+            "dark:bg-white/10 shadow-lg bg-white text-sm absolute inset-0 -z-10 select-none h-[30px] w-full  font-bold  rounded-md flex items-center justify-end text-white",
+            ObserverClassName
           )}
         >
-          {label && <div className="mr-2 ">{label}</div>}
+          {labelText && (
+            <p className={cn("mr-2", labelClassName)}>{labelText}</p>
+          )}
         </div>
         <div
           ref={ref}
           style={{
-            paddingTop: `${inView * itemHeight - 15}px`,
-            paddingBottom: `${inView * itemHeight - 15}px`,
-            transform: `translateY(${-((inView - 1) * itemHeight)}px)`,
+            paddingTop: `${visibleItems * itemHeight - 15}px`,
+            paddingBottom: `${visibleItems * itemHeight - 15}px`,
+            transform: `translateY(${-((visibleItems - 1) * itemHeight)}px)`,
           }}
           className="h-full overflow-scroll  overflow-x-hidden hide-scroll-bar snap-y snap-mandatory cursor-grab"
         >
-          {firstItem && (
+          {initialItemLabel && (
             <PickerItem
-              key="firstItem"
-              option={firstItem.toString()}
+              key="initialItemLabel"
+              option={initialItemLabel.toString()}
               value={null}
               activeIndex={activeIndex}
               id={-1}
-              label={label}
-              ItemclassName={ItemclassName}
+              label={labelText}
+              itemclassName={itemClassName}
             />
           )}
-          {data.map((option, index) => (
+          {options.map((option, index) => (
             <PickerItem
               key={option}
               option={option.toString()}
               value={option}
               activeIndex={activeIndex}
               id={index + 1}
-              label={label}
-              ItemclassName={ItemclassName}
+              label={labelText}
+              itemclassName={itemClassName}
             />
           ))}
         </div>
@@ -169,17 +172,9 @@ const Picker = memo(
   },
   (prevProps, nextProps) => {
     return (
-      prevProps.inView === nextProps.inView &&
-      prevProps.velocity === nextProps.velocity &&
-      prevProps.label === nextProps.label &&
-      prevProps.onChange === nextProps.onChange &&
-      prevProps.width === nextProps.width &&
-      prevProps.sound === nextProps.sound &&
-      prevProps.className === nextProps.className &&
-      prevProps.labelClassName === nextProps.labelClassName &&
-      prevProps.onChange === nextProps.onChange &&
-      prevProps.data === nextProps.data &&
-      prevProps.defaultValue === nextProps.defaultValue
+      prevProps.onValueChange === nextProps.onValueChange &&
+      prevProps.options === nextProps.options &&
+      prevProps.initialValue === nextProps.initialValue
     );
   }
 );
@@ -190,7 +185,7 @@ const PickerItem = ({
   id,
   activeIndex,
   label,
-  ItemclassName,
+  itemclassName,
 }: PickerItemProps) => {
   return (
     <div
@@ -204,8 +199,8 @@ const PickerItem = ({
             : "opacity-100 scale-100 text-sm"
         } 
         ${label ? "px-2 justify-start" : "justify-center"}
-      focus:outline-none focus:ring-4 dark:text-white text-black  flex items-center font-semibold w-full h-[30px] rounded-md select-none snap-center transition-opacity duration-75 ease-in-out transform-gpu`,
-        ItemclassName
+      focus:outline-none focus:ring-4 text-white flex items-center font-semibold w-full h-[30px] rounded-md select-none snap-center transition-opacity duration-75 ease-in-out transform-gpu`,
+        itemclassName
       )}
     >
       {option}
