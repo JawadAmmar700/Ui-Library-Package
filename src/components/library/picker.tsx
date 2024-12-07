@@ -2,22 +2,41 @@ import React, { memo, useCallback } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import useSound from "use-sound";
-import { useScroll } from "@/lib/hooks/use-scroll";
+import { useScroll } from "@/components/library/hooks/use-scroll";
 
 interface PickerProps {
+  // The number of items visible in the picker.
   visibleItems: number;
+  // The velocity of scrolling, determined by predefined numeric values (0.5 to 3).
   scrollVelocity: 0.5 | 1 | 1.5 | 2 | 2.5 | 3;
+  // Callback function triggered when the selected value changes, accepting various types.
   onValueChange: (value: string | number | boolean | null) => void;
+  // Optional text label for the picker, can be null.
   labelText?: string | null;
+  // The width of the picker component in pixels.
   componentWidth: number;
+  // Optional sound effect to play when interacting with the picker; can be "pop" or "click".
   soundEffect?: "pop" | "click";
+  // Optional initial value of the picker, can be null.
+  // If null, the picker will start at the top of the list.
+  // The initial value is the index of the selected item.
+  // Note: The initial value is 1-indexed, so if the first item is selected, the initial value should be 1.
   initialValue?: number | null;
+  // Optional TailwindCSS class name for the container of the picker.
   containerClassName?: string;
+  // Optional TailwindCSS class name for the label of the picker.
   labelClassName?: string;
+  // Array of options available for selection within the picker, can be strings or numbers.
   options: string[] | number[];
+  // Optional initial label for the selected item, can be any type or null.
+  // If null, the picker will take the first item in the options array as the initial label.
+  // Else, the picker will take the initialItemLabel as the initial label.
   initialItemLabel?: string | number | boolean | null;
+  // Optional TailwindCSS class name for the options of the picker.
   itemClassName?: string;
+  // Optional boolean to mute sound effects, default is false.
   isMuted?: boolean;
+  // Optional TailwindCSS class name for the observer of the picker.
   ObserverClassName?: string;
 }
 
@@ -46,7 +65,7 @@ const Picker = memo(
     containerClassName,
     labelClassName,
     options,
-    initialItemLabel,
+    initialItemLabel = null,
     itemClassName,
     isMuted = true,
     visibleItems,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 
 type UseScrollProps = {
+  // Velocity is a prop for scrolling speed as a numeric value between 0.5 and 3
   velocity: 0.5 | 1 | 1.5 | 2 | 2.5 | 3;
 };
 

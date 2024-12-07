@@ -253,4 +253,4 @@ const hobbies = [
   "Tattoo designing",
 ];
 
-export { MONTHS, years, hours, minutes, programmingSkills, hobbies };
+export { MONTHS, years, hours, minutes };

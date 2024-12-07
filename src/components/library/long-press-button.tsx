@@ -1,12 +1,21 @@
+import { cn } from "@/utils/cn";
+import { ClassValue } from "clsx";
 import React, { useRef } from "react";
 
 interface LongPressButtonProps<TArgs extends (string | number | boolean)[]> {
+  // Function to execute when the button is pressed or long-pressed. (counter: number, isHolding: boolean, ...args: TArgs) => void
   onPress: (counter: number, isHolding: boolean, ...args: TArgs) => void;
-  className?: string;
+  // TailwindCSS classes for customizing the button's appearance.
+  className?: ClassValue;
+  // The content displayed inside the button.
   children: React.ReactNode;
-  timeOutDuration: number;
+  // Total duration (in milliseconds) before which the button starts responding.
+  timeOutDuration?: number;
+  // Arguments passed to the `onPress` function. It can be an array of strings, numbers, or boolean values.
   onPressArgs: TArgs;
+  // Disable the button from being pressed or long-pressed.
   disabled?: boolean;
+  // Delay between each press action in milliseconds.
   delay?: number;
 }
 
@@ -14,7 +23,7 @@ const LongPressButton = <TArgs extends (string | number | boolean)[]>({
   onPress,
   className,
   children,
-  timeOutDuration,
+  timeOutDuration = 200,
   onPressArgs,
   disabled,
   delay = 10,
@@ -73,7 +82,7 @@ const LongPressButton = <TArgs extends (string | number | boolean)[]>({
       onMouseUp={handleMouseUp}
       onTouchStart={handleMouseDown}
       onTouchEnd={handleMouseUp}
-      className={className}
+      className={cn("p-2 bg-white rounded-md text-black", className)}
       disabled={disabled}
     >
       {children}

@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useEffect, useReducer } from "react";
-import Picker from "@/components/picker";
+import Picker from "@/components/library/picker";
 import { hours, minutes } from "@/lib/constants";
 import { getSunSetAndSunRise } from "@/server/actions";
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/utils/cn";
 import Cookies from "js-cookie";
+import { ClassValue } from "clsx";
 
 interface Position {
   sunset: string;
@@ -13,7 +14,8 @@ interface Position {
 
 interface TimePickerProps {
   theme: "light" | "dark";
-  className?: string;
+  className?: ClassValue;
+  onTimeChange: (time: string) => void;
 }
 
 const periods = ["AM", "PM"];
@@ -47,7 +49,11 @@ const reducer = (state: InitialStateType, action: ActionType) => {
   }
 };
 
-export default function TimePicker({ theme, className }: TimePickerProps) {
+export default function TimePicker({
+  theme,
+  className,
+  onTimeChange,
+}: TimePickerProps) {
   const sunsetSunrise = React.useRef<Position | null>(null);
   const [{ selectedHour, selectedMinute, selectedPeriod }, dispatch] =
     useReducer(reducer, initialState);
@@ -110,10 +116,18 @@ export default function TimePicker({ theme, className }: TimePickerProps) {
       selectedHour !== 12
     ) {
       const pmHour = selectedHour % 12;
-      return `${pmHour.toString().padStart(2, "0")}:${minute} ${period}`;
+      const PMTime = `${pmHour
+        .toString()
+        .padStart(2, "0")}:${minute} ${period}`;
+      onTimeChange(PMTime);
+      return PMTime;
     }
 
-    return `${hour}:${minute} ${period}`;
+    const AMTime = `${hour}:${minute} ${period}`;
+
+    onTimeChange(AMTime);
+
+    return AMTime;
   }, [selectedHour, selectedMinute, selectedPeriod]);
 
   const checkDayOrNight = useMemo(() => {

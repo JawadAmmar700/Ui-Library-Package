@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 
 type TouchItem = {
   element: HTMLElement;
@@ -8,7 +8,10 @@ type TouchItem = {
 };
 
 type useNativeDropProps = {
+  // An array of strings representing the items that can be dragged and dropped within the designated drop zone.
   draggableItems: string[];
+  // An optional array of strings specifying the items that are pre-selected within the drop zone when it first loads.
+  // This allows for initialization of the drop zone with specific items already selected by default.
   defaultSelected?: string[];
 };
 

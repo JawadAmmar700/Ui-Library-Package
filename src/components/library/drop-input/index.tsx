@@ -18,15 +18,24 @@ import { AnimatedButtonComponent } from "./animated-button";
 import TypeWriter from "../type-writer";
 import LongPressButton from "../long-press-button";
 import { cn } from "@/utils/cn";
+import { ClassValue } from "clsx";
 
 interface DropInputProps {
+  // Theme of the component
   theme: "Dark" | "Light";
+  // Label for the options List
   optionsLabel: string;
+  // Label for the input field
   label: string;
-  className?: string;
+  // TailwindCSS class for customizing the component's appearance.
+  className?: ClassValue;
+  // TailwindCSS class for customizing the option's appearance.
   optionsClassName?: string;
+  // Array of options to be displayed in the component
   options: string[];
+  // Default selected options
   defaultSelected?: string[];
+  // Function to be called when the selected options change
   onChange: (value: string[]) => void;
 }
 
@@ -312,7 +321,7 @@ export default function DropInput({
     <div
       ref={contanierRef}
       className={cn(
-        `p-5 rounded-lg drop-input-user-select ${
+        `w-2/4 p-5 rounded-lg drop-input-user-select ${
           theme === "Dark" ? "bg-[#0f172a]" : "bg-[#e2e8f0]"
         }`,
         className
@@ -503,6 +512,7 @@ export default function DropInput({
                 timeOutDuration={200}
                 disabled={!list}
                 delay={50}
+                className="rounded-none bg-transparent p-0"
               >
                 <ChevronUp
                   size={16}
@@ -519,6 +529,7 @@ export default function DropInput({
                 timeOutDuration={200}
                 disabled={!list}
                 delay={50}
+                className="rounded-none bg-transparent p-0"
               >
                 <ChevronDown
                   size={16}
@@ -535,7 +546,7 @@ export default function DropInput({
             <div
               ref={listRef}
               className={cn(
-                "flex flex-wrap gap-2 touch-none overflow-y-scroll drop-input-scrollbar",
+                "flex flex-wrap gap-2 max-h-[90px] touch-none overflow-y-scroll drop-input-scrollbar",
                 optionsClassName
               )}
             >

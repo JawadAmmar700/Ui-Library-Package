@@ -3,21 +3,26 @@ import { ClassValue } from "clsx";
 import React, { useEffect, useState } from "react";
 
 interface TypeWriterProps {
+  // The text to be displayed.
   text: string;
-  loop: boolean;
+  // Whether to loop the animation or not
+  loop?: boolean;
+  // TailwindCSS class for customizing the cursor's appearance.
   cursorStyle?: ClassValue;
+  // TailwindCSS class for customizing the text appearance
   TextStyle?: ClassValue;
-  animationDuration: number;
+  // The duration of the animation in milliseconds for the typing effect.
+  animationDuration?: number;
 }
 
 const TypeWriter = ({
-  loop,
+  loop = false,
   text,
   cursorStyle,
   TextStyle,
-  animationDuration,
+  animationDuration = 100,
 }: TypeWriterProps) => {
-  const [animatedText, setAnimatedText] = useState("");
+  const [animatedText, setAnimatedText] = useState<string>("");
 
   useEffect(() => {
     const lastTimeRef: { current: number | null } = { current: null };
@@ -88,9 +93,11 @@ const TypeWriter = ({
         {animatedText.split("\n").map((line, index) => (
           <React.Fragment key={index}>
             {line}
+            {/* Add a <br /> after each line except the last */}
             {index < animatedText.split("\n").length - 1 && <br />}
           </React.Fragment>
         ))}
+        {/* Blinking cursor follows the last line */}
         {animatedText.length > 0 && (
           <span
             className={cn(

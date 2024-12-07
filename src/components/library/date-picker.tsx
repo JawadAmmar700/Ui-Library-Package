@@ -1,27 +1,23 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Picker from "@/components/picker";
+import Picker from "@/components/library/picker";
 import { MONTHS, years } from "@/lib/constants";
 import { cn } from "@/utils/cn";
+import { ClassValue } from "clsx";
 
 interface DatePickerProps {
   theme?: "light" | "dark";
+  onDateChange: (date: Date, toLocaleDateString: string) => void;
+  className?: ClassValue;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ theme = "light" }) => {
+const DatePicker: React.FC<DatePickerProps> = ({
+  theme = "light",
+  onDateChange,
+  className,
+}) => {
   const currentDate = new Date();
   const [selectedDate, setSelectedDate] = useState(currentDate);
-
-  const days = useMemo(() => {
-    const daysInMonth = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth() + 1,
-      0
-    ).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) =>
-      (i + 1).toString().padStart(2, "0")
-    );
-  }, [selectedDate]);
 
   const handleDateChange = useCallback(
     (
@@ -33,7 +29,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ theme = "light" }) => {
         let newYear = newDate.getFullYear();
         let newMonth = newDate.getMonth();
         let newDay = newDate.getDate();
-
         switch (type) {
           case "year":
             newYear =
@@ -54,17 +49,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ theme = "light" }) => {
                 : currentDate.getDate();
             break;
         }
-
         // Adjust for months with fewer days
         const lastDayOfMonth = new Date(newYear, newMonth + 1, 0).getDate();
         newDay = Math.min(newDay, lastDayOfMonth);
-
         return new Date(newYear, newMonth, newDay);
       });
     },
-    [currentDate]
+    []
   );
-
   const changeMonth = useCallback((increment: number) => {
     setSelectedDate((prevDate) => {
       const newDate = new Date(prevDate);
@@ -78,13 +70,28 @@ const DatePicker: React.FC<DatePickerProps> = ({ theme = "light" }) => {
     });
   }, []);
 
-  const formattedDate = useMemo(() => {
-    return selectedDate.toLocaleDateString("en-US", {
+  const { days, formattedDate } = useMemo(() => {
+    const daysInMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      0
+    ).getDate();
+    const days = Array.from({ length: daysInMonth }, (_, i) =>
+      (i + 1).toString().padStart(2, "0")
+    );
+
+    const formattedDate = selectedDate.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-  }, [selectedDate]);
+    onDateChange && onDateChange(selectedDate, formattedDate);
+    return { days, formattedDate };
+  }, [
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    selectedDate.getDate(),
+  ]);
 
   const isDarkTheme = theme === "dark";
 
@@ -103,8 +110,10 @@ const DatePicker: React.FC<DatePickerProps> = ({ theme = "light" }) => {
   return (
     <div
       className={cn(
-        "transition-all duration-300 max-w-md p-5 pt-5 shadow-lg rounded-lg",
-        isDarkTheme ? "bg-black" : "bg-slate-50"
+        `transition-all duration-300 max-w-md p-5 pt-5 shadow-lg rounded-lg ${
+          isDarkTheme ? "bg-black" : "bg-slate-50"
+        }`,
+        className
       )}
     >
       <div>
