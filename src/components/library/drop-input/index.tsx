@@ -22,7 +22,7 @@ import { ClassValue } from "clsx";
 
 interface DropInputProps {
   // Theme of the component
-  theme: "Dark" | "Light";
+  theme?: "Dark" | "Light";
   // Label for the options List
   optionsLabel: string;
   // Label for the input field
@@ -47,7 +47,7 @@ type TouchItem = {
 };
 
 export default function DropInput({
-  theme = "Dark",
+  theme = "Light",
   label,
   optionsLabel,
   options,

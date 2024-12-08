@@ -1,6 +1,6 @@
 {
-  "name": "@jawad_ammar/ui-library",
-  "version": "0.0.43",
+  "name": "@jawad_ammar/link-ui",
+  "version": "0.0.5",
   "description": "A reusable and customizable UI component library for building modern and responsive web applications.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
