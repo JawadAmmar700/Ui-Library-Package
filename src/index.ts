@@ -8,6 +8,7 @@ import TimePicker from "./components/library/time-picker";
 import DatePicker from "./components/library/date-picker";
 import useNativeDrop from "./components/library/hooks/use-native-drop";
 import { useScroll } from "./components/library/hooks/use-scroll";
+import IDock from "./components/library/dock";
 
 export {
   Picker,
@@ -18,4 +19,5 @@ export {
   LongPressButton,
   useNativeDrop,
   useScroll,
+  IDock,
 };

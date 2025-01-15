@@ -200,7 +200,7 @@ The `LongPressButton` component is a versatile button that triggers a callback f
 
 ## Features
 
-- Single and Long Press: Executes different logic for a single press or continuous press.
+- **Single and Long Press**: Executes different logic for a single press or continuous press.
 - **Customizable Delay**: Adjust the delay between repeated actions during long presses.
 - **TailwindCSS Styling**: Easily style the button with TailwindCSS classes.
 - **Arguments Support**: Pass custom arguments to the callback function.
@@ -454,6 +454,79 @@ function App() {
     </div>
   );
 }
+
+export default App;
+```
+
+## 9. `IDock` Component
+
+The **IDock** component is a customizable, animated dock component for React applications. It allows you to place interactive items in a dock-like UI at various screen positions, with support for scaling animations and tooltips.
+
+## Features
+
+- **Customizable Positions**: Place the dock at any of the six predefined positions on the screen.
+- **Smooth Animations**: Configure animation duration for hover effects.
+- **Interactive Tooltips**: Display tooltips on hover with customizable styles.
+- **Flexible Design**: Add custom styles to both the dock and its items.
+
+![IDock Component](./assets/gifs/IDock.gif)
+
+## Props
+
+| Prop                | Type                                                                                              | Default         | Required | Description                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------- | --------------- | -------- | ------------------------------------------------------------------------- |
+| `position`          | `"Top-Left" \| "Top-Right" \| "Bottom-Left" \| "Bottom-Right" \| "Top-Center" \| "Bottom-Center"` | `Bottom-Center` | Optional | Position of the dock on the screen.                                       |
+| `className`         | `ClassValue`                                                                                      | `undefined`     | Optional | Custom classes for the dock container.                                    |
+| `animationDuration` | `75 \| 100 \| 150 \| 200 \| 300 \| 500 \| 700 \| 1000`                                            | `300`           | Optional | Animation duration in milliseconds for hover effects and transformations. |
+
+### `IDock.Child`
+
+| Prop               | Type                  | Required | Description                                                 |
+| ------------------ | --------------------- | -------- | ----------------------------------------------------------- |
+| `icon`             | `React.ReactNode`     | Required | Icon or content to display inside the dock item.            |
+| `className`        | `ClassValue`          | Optional | Custom classes for the dock item.                           |
+| `tooltip`          | `string \| undefined` | Optional | Text to display as a tooltip when the dock item is hovered. |
+| `tooltipClassName` | `ClassValue`          | Optional | Custom classes for the tooltip.                             |
+| `onClick`          | `() => void`          | Optional | Callback function to execute when the dock item is clicked. |
+
+## Example Usage
+
+```tsx
+import { IDock } from "@jawad_ammar/link-ui";
+
+const App = () => {
+  return (
+    <IDock position="Bottom-Center">
+      <IDock.Child
+        icon={
+          <span role="img" aria-label="home">
+            🏠
+          </span>
+        }
+        tooltip="Home"
+        onClick={() => alert("Home clicked")}
+      />
+      <IDock.Child
+        icon={
+          <span role="img" aria-label="search">
+            🔍
+          </span>
+        }
+        tooltip="Search"
+        onClick={() => alert("Search clicked")}
+      />
+      <IDock.Child
+        icon={
+          <span role="img" aria-label="settings">
+            ⚙️
+          </span>
+        }
+        tooltip="Settings"
+        onClick={() => alert("Settings clicked")}
+      />
+    </IDock>
+  );
+};
 
 export default App;
 ```

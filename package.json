@@ -1,6 +1,6 @@
 {
   "name": "@jawad_ammar/link-ui",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "A reusable and customizable UI component library for building modern and responsive web applications.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -11,7 +11,17 @@
   "scripts": {
     "build": "rollup -c --bundleConfigAsCjs"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JawadAmmar700/Ui-Library-Package.git"
+  },
+  "keywords": [
+    "UI library",
+    "React",
+    "TailwindCSS",
+    "Reusable components",
+    "Frontend"
+  ],
   "author": "Jawad Ammar",
   "license": "MIT",
   "dependencies": {
@@ -20,7 +30,8 @@
     "lucide-react": "^0.453.0",
     "js-cookie": "^3.0.5",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "use-sound": "^4.0.3"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
@@ -38,12 +49,10 @@
     "rollup-plugin-postcss": "^4.0.2",
     "tailwindcss": "^3.4.15",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.2",
-    "use-sound": "^4.0.3"
+    "typescript": "^5.7.2"
   },
   "peerDependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "use-sound": "^4.0.3"
+    "react-dom": "^18.3.1"
   }
 }

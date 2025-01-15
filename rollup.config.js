@@ -41,7 +41,7 @@ export default [
       }),
       ,
     ],
-    external: ["react", "react-dom", "use-sound"],
+    external: ["react", "react-dom"],
   },
   {
     input: "src/index.ts",
